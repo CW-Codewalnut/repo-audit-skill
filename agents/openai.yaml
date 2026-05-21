@@ -1,0 +1,4 @@
+interface:
+  display_name: "Repo Audit"
+  short_description: "Scan repos for quality and security issues"
+  default_prompt: "Use $repo-audit to scan this repository and generate report.html."
