@@ -26,6 +26,7 @@
       --low: #2563eb;
       --nitpick: #64748b;
       --radius: 8px;
+      --section-gap: 18px;
       --shadow: 0 18px 42px rgba(17, 24, 39, 0.10);
       --font-display: "Aptos Display", "Segoe UI Variable Display", "SF Pro Display", "Inter Tight", "Arial", sans-serif;
       --font-body: "Aptos", "Segoe UI Variable Text", "Inter", "Segoe UI", system-ui, sans-serif;
@@ -138,7 +139,7 @@
         radial-gradient(circle at 84% 12%, rgba(109, 91, 208, 0.28), transparent 26%),
         linear-gradient(135deg, var(--navy), var(--navy-2));
       color: #fff;
-      padding: 42px 0 78px;
+      padding: 42px 0px 78px;
     }
 
     .hero-grid {
@@ -221,6 +222,7 @@
       display: grid;
       align-content: space-between;
       gap: 18px;
+      margin-top: 20px;
     }
 
     .posture-top {
@@ -396,7 +398,7 @@
       display: grid;
       grid-template-columns: minmax(0, 1.55fr) minmax(340px, 0.9fr);
       gap: 18px;
-      margin-top: 18px;
+      margin-top: var(--section-gap);
       align-items: start;
     }
 
@@ -406,7 +408,15 @@
     }
 
     .panel + .panel {
-      margin-top: 18px;
+      margin-top: var(--section-gap);
+    }
+
+    .section-spaced {
+      margin-top: var(--section-gap);
+    }
+
+    .hero-lead {
+      padding-top: var(--section-gap);
     }
 
     .section-title {
@@ -683,6 +693,13 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       font-size: 15px;
+    }
+
+    .finding[open] .finding-title strong {
+      overflow: visible;
+      text-overflow: clip;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
 
     .finding-title span {
@@ -1023,7 +1040,7 @@
 
     <section class="hero">
       <div class="wrap hero-grid">
-        <div>
+        <div class="hero-lead">
           <p class="eyebrow">Leadership Audit Dashboard</p>
           <h1 id="report-title">Executive Code Audit Report</h1>
           <p class="hero-copy" id="hero-copy"></p>
@@ -1136,7 +1153,7 @@
         </aside>
       </div>
 
-      <section class="panel" aria-labelledby="clean-heading">
+      <section class="panel section-spaced" aria-labelledby="clean-heading">
         <div class="section-title">
           <div>
             <h2 id="clean-heading">Files With No Findings</h2>
