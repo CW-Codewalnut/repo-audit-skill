@@ -17,7 +17,7 @@ The language and framework rules are bundled as rule assets under `assets/rules/
 4. Read every in-scope file fully; do not skip or truncate files.
 5. Apply loaded asset rules, repository-local guidance, general best practices, and this orchestrator's special scans.
 6. Record one finding per violation with source file and source line.
-7. Save the final interactive HTML report as `report.html` in the repository root.
+7. Generate `report.html` from `assets/report-template.html` and save it in the repository root.
 
 ## Discovery
 
@@ -141,7 +141,17 @@ Audit config and dependency manifests.
 
 ## HTML Report
 
-Generate a polished, color-coded, interactive HTML report at `report.html` in the repository root. Use charts, severity badges, summary cards, and expandable `<details>` sections where useful.
+Generate a polished, color-coded, leadership-ready HTML report at `report.html` in the repository root by using `assets/report-template.html` as the report shell.
+
+Use the template this way:
+
+- Copy `assets/report-template.html` to the audited repository root as `report.html`.
+- Replace the `auditData` object in the template with the real audit data.
+- Keep the template self-contained: inline CSS, inline JavaScript, no CDN, no remote fonts, and no network-dependent assets.
+- Preserve the interactive controls unless the report data makes a control irrelevant: severity filters, search, category/source filters, expand/collapse buttons, risk score, severity visualization, category heat bars, recommended remediation order, clean files, and missing coverage sections.
+- Use accessible color-coded severity badges, charts, summary cards, executive risk posture, and expandable `<details>` findings.
+- Escape report data before injecting it into HTML/JavaScript to avoid broken markup or report-time script injection.
+- If extra repository-specific sections are useful, add them below the existing template sections without removing the required sections.
 
 The report must contain:
 
