@@ -16,7 +16,7 @@
 ## How To Use
 
 1. Install the skill:
-   `npx skills add vaibhav-codewalnut/repo-audit-skill`
+   `npx skills add CW-Codewalnut/repo-audit-skill`
 2. Use the skill with your AI agent by prompting it to run a repository audit for your target project.
 3. Follow the skill workflow described in `skills/repo-audit/SKILL.md`.
 4. Select the appropriate rule set(s) under `skills/repo-audit/assets/rules/` based on the target codebase.
@@ -32,10 +32,5 @@ The report template is designed for both technical and non-technical stakeholder
 - Remediation ordering and missing test coverage sections.
 - Clean files summary (`Files With No Findings`).
 
-## Publishing
+Sample Report: https://codewalnut-repo-audit-skill-demo.netlify.app/
 
-The repository is intended to be published to:
-
-- [vaibhav-codewalnut/repo-audit-skill](https://github.com/vaibhav-codewalnut/repo-audit-skill)
-
-If direct push fails with a permission error, verify that the authenticated GitHub credential (token/account) matches the repository owner or has collaborator write access. `git config user.name` and `git config user.email` only control commit metadata, not push authorization.
