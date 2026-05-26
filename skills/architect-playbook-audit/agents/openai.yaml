@@ -1,0 +1,4 @@
+interface:
+  display_name: "Architect Playbook Audit"
+  short_description: "Run a consolidated Architect Playbook audit"
+  default_prompt: "Use $architect-playbook-audit to audit this repository and generate an interactive dashboard."

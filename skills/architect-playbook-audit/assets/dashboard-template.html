@@ -1,0 +1,1637 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Architect Playbook Audit Dashboard</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f6f7fb;
+      --ink: #101828;
+      --muted: #667085;
+      --panel: #ffffff;
+      --soft: #eef4f3;
+      --line: #d9dee7;
+      --header: #182033;
+      --header-2: #263148;
+      --teal: #0f766e;
+      --green: #15803d;
+      --gold: #b7791f;
+      --blue: #2563eb;
+      --purple: #6d5bd0;
+      --red: #be123c;
+      --orange: #c2410c;
+      --slate: #64748b;
+      --radius: 8px;
+      --shadow: 0 18px 42px rgba(16, 24, 40, 0.10);
+      --font-body: "Aptos", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font: 14px/1.5 var(--font-body);
+      text-rendering: geometricPrecision;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    code,
+    pre {
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    main {
+      padding-top: 12px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(24, 32, 51, 0.96);
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+    }
+
+    .wrap,
+    .topbar-inner {
+      width: min(1240px, calc(100vw - 40px));
+      margin: 0 auto;
+    }
+
+    .topbar-inner {
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      font-weight: 850;
+    }
+
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: conic-gradient(from 180deg, var(--teal), var(--purple), var(--gold), var(--teal));
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.30);
+      flex: 0 0 auto;
+    }
+
+    .brand span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .top-meta {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .hero {
+      background: linear-gradient(180deg, var(--header), var(--header-2));
+      color: #fff;
+      padding: 40px 0 72px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 12px;
+      max-width: 860px;
+      font-size: clamp(34px, 5vw, 60px);
+      line-height: 1;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .hero-copy {
+      max-width: 820px;
+      margin-bottom: 20px;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 17px;
+      overflow-wrap: anywhere;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.86);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .posture-panel {
+      min-width: 0;
+      min-height: 256px;
+      padding: 20px;
+      display: grid;
+      align-content: space-between;
+      gap: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.20);
+    }
+
+    .posture-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+      min-width: 0;
+    }
+
+    .posture-label {
+      color: rgba(255, 255, 255, 0.66);
+      font-size: 12px;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .posture-value {
+      margin-top: 5px;
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .score-ring {
+      width: 116px;
+      height: 116px;
+      position: relative;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+
+    .score-ring svg {
+      position: absolute;
+      inset: 0;
+      transform: rotate(-90deg);
+    }
+
+    .score-number {
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .score-caption {
+      margin-top: 2px;
+      color: rgba(255, 255, 255, 0.66);
+      font-size: 11px;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .posture-note {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .strip-item {
+      min-height: 56px;
+      padding: 9px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.08);
+      min-width: 0;
+    }
+
+    .strip-item strong,
+    .strip-item span {
+      display: block;
+    }
+
+    .strip-item strong {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .strip-item span {
+      margin-top: 5px;
+      color: rgba(255, 255, 255, 0.66);
+      font-size: 10px;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    main > section.wrap {
+      margin-top: -42px;
+      padding-bottom: 54px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric-card,
+    .panel,
+    .audit-card,
+    .finding,
+    .empty-state {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .metric-card {
+      min-height: 124px;
+      padding: 15px;
+      display: grid;
+      align-content: space-between;
+      overflow: hidden;
+      min-width: 0;
+      position: relative;
+    }
+
+    .metric-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 4px;
+      background: var(--accent, var(--teal));
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .metric-value {
+      margin-top: 10px;
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .metric-note {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(340px, 0.9fr);
+      gap: 18px;
+      align-items: start;
+      margin-top: 18px;
+    }
+
+    .panel {
+      padding: 20px;
+      min-width: 0;
+    }
+
+    .panel + .panel,
+    .section-spaced {
+      margin-top: 18px;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: start;
+      margin-bottom: 16px;
+    }
+
+    .section-title h2,
+    .section-title h3 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .section-title p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .brief-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .brief-item {
+      min-height: 128px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcff;
+    }
+
+    .brief-item strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .brief-item p {
+      margin: 0;
+      color: #344054;
+    }
+
+    .audit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(252px, 1fr));
+      gap: 12px;
+    }
+
+    .audit-card {
+      padding: 14px;
+      box-shadow: none;
+      min-width: 0;
+      display: grid;
+      gap: 12px;
+      position: relative;
+    }
+
+    .audit-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .audit-head > span:first-child {
+      min-width: 0;
+    }
+
+    .audit-head strong,
+    .audit-head span {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .audit-head span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status-badge,
+    .severity-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      border-radius: 999px;
+      padding: 0 10px;
+      border: 1px solid var(--badge-line);
+      background: var(--badge-bg);
+      color: var(--badge-color);
+      font-size: 11px;
+      font-weight: 900;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .audit-head .status-badge {
+      display: inline-flex;
+      align-self: center;
+      flex: 0 0 auto;
+      color: var(--badge-color);
+      line-height: 1;
+    }
+
+    .audit-summary {
+      margin: 0;
+      color: #344054;
+      min-height: 42px;
+    }
+
+    .stack-bar {
+      display: flex;
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e8edf3;
+    }
+
+    .stack-segment {
+      min-width: 0;
+      transition: width 240ms ease;
+    }
+
+    .status-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin: -4px 0 14px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--legend-color);
+    }
+
+    .audit-popover {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      top: 48px;
+      z-index: 25;
+      display: none;
+      padding: 12px;
+      border: 1px solid #c8d2e0;
+      border-radius: var(--radius);
+      background: #ffffff;
+      box-shadow: 0 18px 38px rgba(16, 24, 40, 0.18);
+      color: #344054;
+      font-size: 12px;
+    }
+
+    .audit-popover strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .audit-card:hover .audit-popover,
+    .audit-card:focus .audit-popover,
+    .audit-card:focus-within .audit-popover {
+      display: block;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 68px;
+      z-index: 20;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      align-items: center;
+      padding: 12px;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 28px rgba(16, 24, 40, 0.08);
+    }
+
+    .control,
+    .icon-button {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .control {
+      flex: 1 1 136px;
+      width: auto;
+      max-width: 100%;
+      padding: 0 11px;
+      min-width: 0;
+    }
+
+    #search-input {
+      flex: 2 1 248px;
+    }
+
+    .control:focus,
+    .icon-button:focus {
+      border-color: var(--teal);
+      outline: 3px solid rgba(15, 118, 110, 0.16);
+      outline-offset: 1px;
+    }
+
+    .icon-button {
+      flex: 0 0 42px;
+      width: 42px;
+      display: inline-grid;
+      place-items: center;
+      color: #344054;
+      font-size: 18px;
+      font-weight: 850;
+    }
+
+    .icon-button:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    .findings-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .finding {
+      overflow: hidden;
+      box-shadow: none;
+    }
+
+    .finding[open] {
+      box-shadow: 0 16px 34px rgba(16, 24, 40, 0.10);
+    }
+
+    .finding summary {
+      display: grid;
+      grid-template-columns: 10px auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 15px 16px;
+      list-style: none;
+      cursor: pointer;
+    }
+
+    .finding summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .severity-rail {
+      width: 10px;
+      height: 54px;
+      border-radius: 999px;
+      background: var(--rail);
+    }
+
+    .finding-title {
+      min-width: 0;
+    }
+
+    .finding-title strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 15px;
+    }
+
+    .finding[open] .finding-title strong {
+      overflow: visible;
+      text-overflow: clip;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .finding-title span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+      font-size: 12px;
+    }
+
+    .chevron {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      transition: transform 160ms ease;
+    }
+
+    .finding[open] .chevron {
+      transform: rotate(180deg);
+    }
+
+    .finding-body {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .finding-meta {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .meta-box {
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcff;
+    }
+
+    .meta-box span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .meta-box code,
+    .meta-box strong {
+      display: block;
+      margin-top: 4px;
+      overflow-wrap: anywhere;
+    }
+
+    pre {
+      margin: 0;
+      max-height: 280px;
+      overflow: auto;
+      border: 1px solid #202a44;
+      border-radius: var(--radius);
+      background: #0b1020;
+      color: #e6edf6;
+      padding: 14px;
+      white-space: pre-wrap;
+    }
+
+    .copy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .copy-block {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcff;
+      min-width: 0;
+    }
+
+    .copy-block h4 {
+      margin: 0 0 6px;
+      font-size: 13px;
+    }
+
+    .copy-block p {
+      margin: 0;
+      color: #344054;
+      overflow-wrap: anywhere;
+    }
+
+    .side-list,
+    .snapshot-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .side-item,
+    .snapshot-item {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcff;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      margin-top: 5px;
+      border-radius: 999px;
+      background: var(--teal);
+    }
+
+    .side-item strong,
+    .side-item span,
+    .snapshot-item strong,
+    .snapshot-item span {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .side-item span,
+    .snapshot-item span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status-bars {
+      display: grid;
+      gap: 11px;
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: 90px minmax(0, 1fr) 42px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .status-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 850;
+      color: #344054;
+      text-transform: capitalize;
+    }
+
+    .track {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e8edf3;
+    }
+
+    .bar {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: var(--teal);
+      transition: width 240ms ease;
+    }
+
+    .count {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .empty-state {
+      padding: 22px;
+      box-shadow: none;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .playbook-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.86fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .playbook-copy p {
+      margin-bottom: 10px;
+      color: #344054;
+    }
+
+    .playbook-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 0 12px;
+      border-radius: var(--radius);
+      background: var(--header);
+      color: #fff;
+      font-weight: 850;
+      text-decoration: none;
+    }
+
+    .playbook-link:hover,
+    .playbook-link:focus {
+      background: var(--teal);
+      outline: none;
+    }
+
+    .usage-steps {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: usage-step;
+    }
+
+    .usage-steps li {
+      counter-increment: usage-step;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcff;
+    }
+
+    .usage-steps li::before {
+      content: counter(usage-step);
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--teal);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .usage-steps span {
+      color: #344054;
+      overflow-wrap: anywhere;
+    }
+
+    .footer {
+      margin-top: 18px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    @media (max-width: 1120px) {
+      .hero-grid,
+      .main-grid,
+      .brief-grid,
+      .playbook-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .toolbar {
+        top: 58px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .wrap,
+      .topbar-inner {
+        width: min(100vw - 24px, 1240px);
+      }
+
+      .topbar-inner {
+        min-height: 52px;
+      }
+
+      .brand {
+        font-size: 13px;
+      }
+
+      .top-meta {
+        display: none;
+      }
+
+      .hero {
+        padding: 30px 0 64px;
+      }
+
+      .status-strip,
+      .metric-grid,
+      .finding-meta,
+      .copy-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        align-items: stretch;
+      }
+
+      .control,
+      #search-input {
+        flex-basis: 100%;
+      }
+
+      .posture-top {
+        display: grid;
+      }
+
+      .score-ring {
+        width: 104px;
+        height: 104px;
+      }
+
+      .finding summary {
+        grid-template-columns: 8px minmax(0, 1fr) auto;
+      }
+
+      .finding summary .severity-badge {
+        display: none;
+      }
+    }
+
+    @media print {
+      .topbar,
+      .toolbar,
+      .icon-button {
+        display: none;
+      }
+
+      .wrap {
+        width: auto;
+        margin: 0;
+        padding: 0;
+      }
+
+      main {
+        padding-top: 0;
+      }
+
+      .hero {
+        padding: 24px;
+      }
+
+      .panel,
+      .metric-card,
+      .audit-card,
+      .finding {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span id="topbar-title">Architect Playbook Audit</span>
+      </div>
+      <div class="top-meta" id="topbar-meta"></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow">Consolidated Repository Audit</p>
+          <h1 id="report-title">Architect Playbook Audit Dashboard</h1>
+          <p class="hero-copy" id="hero-copy"></p>
+          <div class="meta-row" id="report-meta"></div>
+        </div>
+        <aside class="posture-panel" aria-label="Risk posture">
+          <div class="posture-top">
+            <div>
+              <div class="posture-label">Posture</div>
+              <div class="posture-value" id="posture-value">Clear</div>
+            </div>
+            <div class="score-ring" aria-label="Risk score">
+              <svg width="116" height="116" viewBox="0 0 116 116">
+                <circle cx="58" cy="58" r="48" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="12"></circle>
+                <circle id="score-arc" cx="58" cy="58" r="48" fill="none" stroke="#fbbf24" stroke-width="12" stroke-linecap="round"></circle>
+              </svg>
+              <div>
+                <div class="score-number" id="score-number">0</div>
+                <div class="score-caption">Risk score</div>
+              </div>
+            </div>
+          </div>
+          <p class="posture-note" id="posture-note"></p>
+          <div class="status-strip" id="status-strip"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <div class="metric-grid" id="metric-grid"></div>
+
+      <section class="panel section-spaced" aria-labelledby="brief-heading">
+        <div class="section-title">
+          <div>
+            <h2 id="brief-heading">Executive Brief</h2>
+            <p>Impact, direction, and action framing for the consolidated playbook run.</p>
+          </div>
+        </div>
+        <div class="brief-grid" id="executive-brief"></div>
+      </section>
+
+      <section class="panel section-spaced" aria-labelledby="matrix-heading">
+        <div class="section-title">
+          <div>
+            <h2 id="matrix-heading">Audit Matrix</h2>
+            <p>Status for each selected Architect Playbook audit.</p>
+          </div>
+        </div>
+        <div class="status-legend" aria-label="Audit matrix status legend">
+          <span class="legend-item"><span class="legend-dot" style="--legend-color:#be123c"></span>Violation</span>
+          <span class="legend-item"><span class="legend-dot" style="--legend-color:#2563eb"></span>Missing</span>
+          <span class="legend-item"><span class="legend-dot" style="--legend-color:#b7791f"></span>Partial</span>
+          <span class="legend-item"><span class="legend-dot" style="--legend-color:#15803d"></span>Present</span>
+        </div>
+        <div class="audit-grid" id="audit-grid"></div>
+      </section>
+
+      <div class="main-grid">
+        <div>
+          <section class="panel" aria-labelledby="findings-heading">
+            <div class="section-title">
+              <div>
+                <h2 id="findings-heading">Detailed Findings</h2>
+                <p id="visible-count"></p>
+              </div>
+            </div>
+
+            <div class="toolbar" aria-label="Finding controls">
+              <input class="control" id="search-input" type="search" placeholder="Search findings, files, checks, sources">
+              <select class="control" id="audit-select" aria-label="Filter by audit"></select>
+              <select class="control" id="status-select" aria-label="Filter by status"></select>
+              <select class="control" id="severity-select" aria-label="Filter by severity"></select>
+              <button class="icon-button" id="expand-all" type="button" title="Expand all findings" aria-label="Expand all findings">v</button>
+              <button class="icon-button" id="collapse-all" type="button" title="Collapse all findings" aria-label="Collapse all findings">^</button>
+            </div>
+
+            <div class="findings-list" id="findings-list"></div>
+          </section>
+        </div>
+
+        <aside>
+          <section class="panel" aria-labelledby="composition-heading">
+            <div class="section-title">
+              <div>
+                <h2 id="composition-heading">Status Composition</h2>
+                <p>Checks grouped by playbook status.</p>
+              </div>
+            </div>
+            <div class="status-bars" id="status-bars"></div>
+          </section>
+
+          <section class="panel" aria-labelledby="recommendations-heading">
+            <div class="section-title">
+              <div>
+                <h2 id="recommendations-heading">Recommended Order</h2>
+                <p>Highest leverage actions across audits.</p>
+              </div>
+            </div>
+            <ul class="side-list" id="recommendations-list"></ul>
+          </section>
+
+          <section class="panel" aria-labelledby="blocked-heading">
+            <div class="section-title">
+              <div>
+                <h2 id="blocked-heading">Skipped And Blocked</h2>
+                <p>Audits not fully executed and why.</p>
+              </div>
+            </div>
+            <ul class="side-list" id="blocked-list"></ul>
+          </section>
+        </aside>
+      </div>
+
+      <section class="panel section-spaced" aria-labelledby="snapshots-heading">
+        <div class="section-title">
+          <div>
+            <h2 id="snapshots-heading">Diagnostic Snapshots</h2>
+            <p>Layer 0 signals and environment observations recorded by selected audits.</p>
+          </div>
+        </div>
+        <ul class="snapshot-list" id="snapshot-list"></ul>
+      </section>
+
+      <section class="panel section-spaced" aria-labelledby="playbook-heading">
+        <div class="section-title">
+          <div>
+            <h2 id="playbook-heading">Ben's Architect Playbook</h2>
+            <p>Use the source playbook when one audit area needs a deeper, standalone pass.</p>
+          </div>
+        </div>
+        <div class="playbook-panel">
+          <div class="playbook-copy">
+            <p>This dashboard consolidates the relevant Architect Playbook audits into one leadership-friendly report. For deeper work on a specific area, run the original Ben's Architect Playbook skill directly, for example security, testing, TypeScript, accessibility, or architecture.</p>
+            <p>The original playbook writes full per-audit artifacts under <code>.architect-audits/&lt;audit-name&gt;/</code>, including layered findings, a Layer 0 snapshot, machine-readable JSON, and optional implementation plans.</p>
+            <a class="playbook-link" href="https://github.com/CW-Codewalnut/ArchitectPlaybook">Open CW-Codewalnut/ArchitectPlaybook</a>
+          </div>
+          <ol class="usage-steps">
+            <li><span>Clone the playbook repository and open it in Claude Code.</span></li>
+            <li><span>Install the slash commands with <code>/install-architect-playbook-globally</code>, or use <code>/install-architect-playbook-locally</code> inside a target project.</span></li>
+            <li><span>Prepare the target project with <code>/pre-audit-setup</code> so graph-aware audits can use the repository map.</span></li>
+            <li><span>Run a focused audit such as <code>/security-audit --learn</code>, <code>/testing-audit --with-run</code>, or <code>/architecture-audit --worktree</code>.</span></li>
+            <li><span>Use <code>--worktree</code> for isolated parallel audits, and use audit-specific <code>--with-*</code> flags when you want optional runtime, network, or existing report enrichment.</span></li>
+          </ol>
+        </div>
+      </section>
+
+      <p class="footer" id="report-footer"></p>
+    </section>
+  </main>
+
+  <script>
+    const architectData = {
+      repository: "{{REPOSITORY_NAME}}",
+      scanDate: "{{SCAN_DATE}}",
+      generatedBy: "architect-playbook-audit",
+      mode: "static",
+      summary: [],
+      totals: {
+        auditsRun: 0,
+        auditsSkipped: 0,
+        auditsBlocked: 0,
+        checks: 0,
+        present: 0,
+        partial: 0,
+        missing: 0,
+        violation: 0,
+        findings: 0,
+        criticalHigh: 0
+      },
+      audits: [],
+      findings: [],
+      recommendations: [],
+      snapshots: []
+    };
+
+    const statusOrder = ["violation", "missing", "partial", "present", "blocked", "skipped"];
+    const statusColors = {
+      violation: "#be123c",
+      missing: "#2563eb",
+      partial: "#b7791f",
+      present: "#15803d",
+      blocked: "#6d5bd0",
+      skipped: "#64748b"
+    };
+    const severityOrder = ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO", "NITPICK"];
+    const severityColors = {
+      CRITICAL: "#be123c",
+      HIGH: "#c2410c",
+      MEDIUM: "#b7791f",
+      LOW: "#2563eb",
+      INFO: "#64748b",
+      NITPICK: "#64748b"
+    };
+    const auditDescriptions = {
+      "quality-gates-audit": "Checks whether pre-commit, pre-push, and continuous integration gates protect the repository with formatting, linting, type checks, tests, builds, coverage, security scans, and release-quality automation.",
+      "bundle-build-audit": "Checks build configuration, bundle composition, asset hygiene, route-level splitting, bundle analysis, source-map posture, size budgets, and build-performance signals.",
+      "security-audit": "Checks frontend security across authentication and sessions, input handling and XSS prevention, transport headers and cookies, secrets, data protection, and third-party integrations.",
+      "dependency-audit": "Checks Node dependency risk across lockfile hygiene, vulnerabilities, outdated or abandoned packages, install scripts, licenses, duplicate packages, and package-manager consistency.",
+      "accessibility-audit": "Checks a React frontend against a WCAG-oriented baseline covering accessibility tooling, semantic component patterns, ARIA, keyboard support, forms, media, landmarks, and application shell behaviour.",
+      "performance-audit": "Checks runtime performance patterns such as render cost, server-state handling, asset usage, lazy loading, Web Vitals readiness, Lighthouse CI, and metric-budget enforcement.",
+      "error-handling-audit": "Checks throw/catch hygiene, async and network failure paths, timeout and retry handling, React error boundaries, logging, observability, and sensitive-data redaction.",
+      "architecture-audit": "Uses the Graphify knowledge graph to check module boundaries, coupling, circular dependencies, state and data flow, architectural conventions, and public API documentation.",
+      "testing-audit": "Checks React tests for Testing Library query priority, selector hygiene, user-event patterns, async wait discipline, snapshot restraint, coverage thresholds, and critical-path coverage.",
+      "react-audit": "Checks idiomatic React usage across hooks correctness, component shape, custom hook design, state management, ref forwarding, display names, children typing, and React 18/19 patterns.",
+      "typescript-audit": "Checks TypeScript compiler strictness, source-level type quality, any and suppression usage, type-system patterns, and runtime validation at network, form, URL, and storage boundaries.",
+      "linting-audit": "Checks ESLint or Biome configuration shape, TypeScript parser setup, rule coverage, React and accessibility plugins, strictness, CI enforcement, and suppression hygiene.",
+      "documentation-audit": "Checks README onboarding, architecture and decision docs, feature documentation, TSDoc or JSDoc coverage, TODO hygiene, operational docs, command drift, and link health.",
+      "agentic-audit": "Checks agent instruction files and Claude Code settings for project context, operational guidance, settings hygiene, permissions, secrets, and drift across CLAUDE.md, AGENTS.md, Cursor, and related files."
+    };
+    const state = {
+      query: "",
+      audit: "ALL",
+      status: "ALL",
+      severity: "ALL"
+    };
+
+    const byId = (id) => document.getElementById(id);
+    const asArray = (value) => Array.isArray(value) ? value : [];
+    const audits = () => asArray(architectData.audits);
+    const findings = () => asArray(architectData.findings);
+    const snapshots = () => asArray(architectData.snapshots);
+    const recommendations = () => asArray(architectData.recommendations);
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[char]);
+    }
+
+    function countStatuses() {
+      const base = { violation: 0, missing: 0, partial: 0, present: 0, blocked: 0, skipped: 0 };
+      const totals = architectData.totals || {};
+      ["violation", "missing", "partial", "present"].forEach((key) => {
+        if (Number.isFinite(Number(totals[key]))) base[key] = Number(totals[key]);
+      });
+      audits().forEach((audit) => {
+        const status = String(audit.status || "").toLowerCase();
+        if ((status === "blocked" || status === "skipped") && base[status] === 0) {
+          base[status] += 1;
+        }
+        const counts = audit.counts || {};
+        ["violation", "missing", "partial", "present"].forEach((key) => {
+          if (!Number.isFinite(Number(totals[key])) && Number.isFinite(Number(counts[key]))) {
+            base[key] += Number(counts[key]);
+          }
+        });
+      });
+      return base;
+    }
+
+    function severityCounts() {
+      return findings().reduce((counts, finding) => {
+        const severity = String(finding.severity || "INFO").toUpperCase();
+        counts[severity] = (counts[severity] || 0) + 1;
+        return counts;
+      }, {});
+    }
+
+    function riskScore() {
+      const weights = { CRITICAL: 28, HIGH: 14, MEDIUM: 7, LOW: 3, INFO: 1, NITPICK: 1 };
+      const bySeverity = findings().reduce((sum, finding) => {
+        const severity = String(finding.severity || "INFO").toUpperCase();
+        return sum + (weights[severity] || 1);
+      }, 0);
+      const statuses = countStatuses();
+      const byStatus = statuses.violation * 10 + statuses.missing * 7 + statuses.partial * 3 + statuses.blocked * 4;
+      return Math.min(100, bySeverity || byStatus);
+    }
+
+    function posture() {
+      const score = riskScore();
+      const severities = severityCounts();
+      const statuses = countStatuses();
+      if ((severities.CRITICAL || 0) > 0 || statuses.violation > 5) {
+        return ["Action Required", "Critical or concentrated violation findings are present. Sequence remediation before broad cleanup."];
+      }
+      if ((severities.HIGH || 0) > 0 || statuses.violation > 0 || statuses.missing > 4 || score >= 45) {
+        return ["Elevated", "The codebase has material gaps across the playbook. Resolve the highest leverage recommendations first."];
+      }
+      if (statuses.partial > 0 || statuses.blocked > 0 || score > 0) {
+        return ["Watch", "No critical concentration is visible, but partial or blocked checks need follow-up."];
+      }
+      return ["Clear", "No material playbook risk is visible in the recorded findings."];
+    }
+
+    function badgeStyle(color) {
+      return `--badge-color:${color};--badge-bg:${color}14;--badge-line:${color}44`;
+    }
+
+    function renderHero() {
+      const totals = architectData.totals || {};
+      const totalFindings = findings().length || Number(totals.findings || 0);
+      const score = riskScore();
+      const [postureLabel, postureNote] = posture();
+      const circumference = 2 * Math.PI * 48;
+
+      byId("topbar-title").textContent = `Architect Playbook: ${architectData.repository || "Repository"}`;
+      byId("topbar-meta").textContent = `${architectData.scanDate || ""} | ${totalFindings} findings`;
+      byId("report-title").textContent = `Architect Playbook Audit: ${architectData.repository || "Repository"}`;
+      byId("hero-copy").textContent = `${Number(totals.auditsRun || audits().filter((audit) => !["skipped", "blocked"].includes(String(audit.status).toLowerCase())).length)} audits run in ${architectData.mode || "static"} mode with ${totalFindings} consolidated findings.`;
+      byId("posture-value").textContent = postureLabel;
+      byId("posture-note").textContent = postureNote;
+      byId("score-number").textContent = score;
+      byId("score-arc").setAttribute("stroke-dasharray", `${(score / 100) * circumference} ${circumference}`);
+      byId("report-footer").textContent = `Generated by ${architectData.generatedBy || "architect-playbook-audit"} on ${architectData.scanDate || "unknown date"}.`;
+
+      byId("report-meta").innerHTML = [
+        ["Repository", architectData.repository || "Unknown"],
+        ["Scan date", architectData.scanDate || "Unknown"],
+        ["Mode", architectData.mode || "static"],
+        ["Audits", audits().length]
+      ].map(([label, value]) => `<span class="meta-pill"><strong>${escapeHtml(label)}</strong> ${escapeHtml(value)}</span>`).join("");
+
+      const statuses = countStatuses();
+      byId("status-strip").innerHTML = ["violation", "missing", "partial", "blocked"].map((status) => `
+        <div class="strip-item">
+          <strong>${statuses[status] || 0}</strong>
+          <span>${escapeHtml(status)}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderMetrics() {
+      const totals = architectData.totals || {};
+      const statuses = countStatuses();
+      const severities = severityCounts();
+      const criticalHigh = Number(totals.criticalHigh || 0) || (severities.CRITICAL || 0) + (severities.HIGH || 0);
+      const runCount = Number(totals.auditsRun || 0) || audits().filter((audit) => !["blocked", "skipped"].includes(String(audit.status).toLowerCase())).length;
+      const blockedSkipped = Number(totals.auditsBlocked || 0) + Number(totals.auditsSkipped || 0)
+        || audits().filter((audit) => ["blocked", "skipped"].includes(String(audit.status).toLowerCase())).length;
+      const checkCount = Number(totals.checks || 0) || statuses.present + statuses.partial + statuses.missing + statuses.violation;
+      const metrics = [
+        ["Audits run", runCount, `${audits().length} selected audits`, "#0f766e"],
+        ["Findings", findings().length || Number(totals.findings || 0), "Deduplicated across audits", "#6d5bd0"],
+        ["Critical + High", criticalHigh, "Highest priority issues", "#be123c"],
+        ["Missing + Violation", statuses.missing + statuses.violation, "Checks needing action", "#2563eb"],
+        ["Blocked / Skipped", blockedSkipped, "Needs prerequisites or not applicable", "#64748b"]
+      ];
+
+      byId("metric-grid").innerHTML = metrics.map(([label, value, note, color]) => `
+        <article class="metric-card" style="--accent:${color}">
+          <div>
+            <div class="metric-label">${escapeHtml(label)}</div>
+            <div class="metric-value">${escapeHtml(value)}</div>
+          </div>
+          <div class="metric-note">${escapeHtml(note)}${checkCount ? ` | ${checkCount} checks` : ""}</div>
+        </article>
+      `).join("");
+    }
+
+    function renderBrief() {
+      const summary = asArray(architectData.summary);
+      const cards = [
+        ["Overall posture", summary[0] || posture()[1]],
+        ["Primary risk", summary[1] || "No primary risk summary was provided."],
+        ["Next move", summary[2] || "Work through the recommended order from top to bottom."]
+      ];
+      byId("executive-brief").innerHTML = cards.map(([title, body]) => `
+        <article class="brief-item">
+          <strong>${escapeHtml(title)}</strong>
+          <p>${escapeHtml(body)}</p>
+        </article>
+      `).join("");
+    }
+
+    function stackSegments(counts) {
+      const total = Math.max(1, ["violation", "missing", "partial", "present"].reduce((sum, key) => sum + Number((counts || {})[key] || 0), 0));
+      return ["violation", "missing", "partial", "present"].map((status) => {
+        const value = Number((counts || {})[status] || 0);
+        return `<span class="stack-segment" title="${escapeHtml(status)}: ${value}" style="width:${Math.round((value / total) * 100)}%;background:${statusColors[status]}"></span>`;
+      }).join("");
+    }
+
+    function renderAuditMatrix() {
+      if (!audits().length) {
+        byId("audit-grid").innerHTML = `<div class="empty-state">No audits recorded.</div>`;
+        return;
+      }
+
+      byId("audit-grid").innerHTML = audits().map((audit) => {
+        const status = String(audit.status || "present").toLowerCase();
+        const color = statusColors[status] || statusColors.present;
+        const counts = audit.counts || {};
+        const description = audit.description || auditDescriptions[audit.id] || "This audit applies an Architect Playbook baseline to the selected repository area and records layered checks, status, evidence, and remediation guidance.";
+        return `
+          <article class="audit-card" tabindex="0">
+            <div class="audit-head">
+              <span>
+                <strong>${escapeHtml(audit.name || audit.id || "Audit")}</strong>
+              </span>
+              <span class="status-badge" style="${badgeStyle(color)}">${escapeHtml(status)}</span>
+            </div>
+            <div class="audit-popover" role="tooltip">
+              <strong>${escapeHtml(audit.name || audit.id || "Audit")}</strong>
+              ${escapeHtml(description)}
+            </div>
+            <p class="audit-summary">${escapeHtml(audit.summary || "No summary recorded.")}</p>
+            <div class="stack-bar" aria-label="Status distribution">${stackSegments(counts)}</div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderStatusBars() {
+      const statuses = countStatuses();
+      const maxValue = Math.max(1, ...Object.values(statuses));
+      byId("status-bars").innerHTML = statusOrder.map((status) => {
+        const count = statuses[status] || 0;
+        return `
+          <div class="status-row">
+            <div class="status-name">${escapeHtml(status)}</div>
+            <div class="track"><div class="bar" style="width:${Math.round((count / maxValue) * 100)}%;background:${statusColors[status] || "#64748b"}"></div></div>
+            <div class="count">${count}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderRecommendations() {
+      const items = recommendations().length ? recommendations() : findings().slice(0, 5).map((finding) => ({
+        title: finding.title,
+        why: finding.why || finding.check || "Finding needs remediation.",
+        smallestFix: finding.fix || "Address the cited check.",
+        severity: finding.severity,
+        audits: [finding.auditName || finding.auditId].filter(Boolean)
+      }));
+
+      byId("recommendations-list").innerHTML = items.length ? items.slice(0, 6).map((item) => `
+        <li class="side-item">
+          <span class="dot" style="background:${severityColors[String(item.severity || "INFO").toUpperCase()] || statusColors.partial}"></span>
+          <span>
+            <strong>${escapeHtml(item.title || "Recommendation")}</strong>
+            <span>${escapeHtml(item.smallestFix || item.why || "No action text recorded.")}</span>
+            <span>${escapeHtml(asArray(item.audits).join(", "))}</span>
+          </span>
+        </li>
+      `).join("") : `<li class="empty-state">No recommendations recorded.</li>`;
+    }
+
+    function renderBlocked() {
+      const items = audits().filter((audit) => ["blocked", "skipped"].includes(String(audit.status || "").toLowerCase()));
+      byId("blocked-list").innerHTML = items.length ? items.map((audit) => `
+        <li class="side-item">
+          <span class="dot" style="background:${statusColors[String(audit.status).toLowerCase()] || statusColors.skipped}"></span>
+          <span>
+            <strong>${escapeHtml(audit.name || audit.id)}</strong>
+            <span>${escapeHtml(audit.summary || String(audit.status || "Not run"))}</span>
+          </span>
+        </li>
+      `).join("") : `<li class="empty-state">No skipped or blocked audits recorded.</li>`;
+    }
+
+    function renderSnapshots() {
+      byId("snapshot-list").innerHTML = snapshots().length ? snapshots().map((snapshot) => {
+        const items = asArray(snapshot.items).slice(0, 8).join(" | ");
+        return `
+          <li class="snapshot-item">
+            <span class="dot"></span>
+            <span>
+              <strong>${escapeHtml(snapshot.title || snapshot.auditId || "Snapshot")}</strong>
+              <span>${escapeHtml(items || snapshot.summary || "No snapshot details recorded.")}</span>
+            </span>
+          </li>
+        `;
+      }).join("") : `<li class="empty-state">No diagnostic snapshots recorded.</li>`;
+    }
+
+    function optionHtml(value, label) {
+      return `<option value="${escapeHtml(value)}">${escapeHtml(label || value)}</option>`;
+    }
+
+    function renderFilters() {
+      const auditOptions = ["ALL", ...new Set([...audits().map((audit) => audit.id || audit.name), ...findings().map((finding) => finding.auditId || finding.auditName)].filter(Boolean))].sort();
+      const statusOptions = ["ALL", ...new Set(findings().map((finding) => String(finding.status || "").toLowerCase()).filter(Boolean))].sort();
+      const severityOptions = ["ALL", ...new Set(findings().map((finding) => String(finding.severity || "INFO").toUpperCase()).filter(Boolean))].sort();
+
+      byId("audit-select").innerHTML = auditOptions.map((item) => optionHtml(item, item === "ALL" ? "All audits" : item)).join("");
+      byId("status-select").innerHTML = statusOptions.map((item) => optionHtml(item, item === "ALL" ? "All statuses" : item)).join("");
+      byId("severity-select").innerHTML = severityOptions.map((item) => optionHtml(item, item === "ALL" ? "All severities" : item)).join("");
+    }
+
+    function findingMatches(finding) {
+      const auditKey = finding.auditId || finding.auditName || "";
+      const haystack = [
+        finding.id,
+        finding.auditId,
+        finding.auditName,
+        finding.category,
+        finding.layer,
+        finding.check,
+        finding.status,
+        finding.severity,
+        finding.title,
+        finding.file,
+        finding.line,
+        finding.why,
+        finding.fix,
+        finding.source
+      ].join(" ").toLowerCase();
+      return (state.audit === "ALL" || auditKey === state.audit)
+        && (state.status === "ALL" || String(finding.status || "").toLowerCase() === state.status)
+        && (state.severity === "ALL" || String(finding.severity || "INFO").toUpperCase() === state.severity)
+        && haystack.includes(state.query.toLowerCase());
+    }
+
+    function renderFindings() {
+      const visible = findings().filter(findingMatches);
+      byId("visible-count").textContent = `${visible.length} of ${findings().length} findings visible`;
+      if (!visible.length) {
+        byId("findings-list").innerHTML = `<div class="empty-state">No findings match the current filters.</div>`;
+        return;
+      }
+
+      byId("findings-list").innerHTML = visible.map((finding) => {
+        const severity = String(finding.severity || "INFO").toUpperCase();
+        const status = String(finding.status || "partial").toLowerCase();
+        const color = severityColors[severity] || statusColors[status] || statusColors.partial;
+        const alsoImpacts = asArray(finding.alsoImpacts).join(", ");
+        return `
+          <details class="finding" style="--rail:${color}">
+            <summary>
+              <span class="severity-rail" aria-hidden="true"></span>
+              <span class="severity-badge" style="${badgeStyle(color)}">${escapeHtml(severity)}</span>
+              <span class="finding-title">
+                <strong>${escapeHtml(finding.id || finding.check || "Finding")} - ${escapeHtml(finding.title || "Untitled finding")}</strong>
+                <span>${escapeHtml(finding.auditName || finding.auditId || "Audit")} | ${escapeHtml(finding.layer || "Layer")} | ${escapeHtml(finding.file || "n/a")}:${escapeHtml(finding.line || "n/a")}</span>
+              </span>
+              <span class="chevron">v</span>
+            </summary>
+            <div class="finding-body">
+              <div class="finding-meta">
+                <div class="meta-box"><span>Audit</span><strong>${escapeHtml(finding.auditName || finding.auditId || "n/a")}</strong></div>
+                <div class="meta-box"><span>Status</span><strong>${escapeHtml(status)}</strong></div>
+                <div class="meta-box"><span>Source</span><code>${escapeHtml(finding.source || "n/a")}</code></div>
+                <div class="meta-box"><span>Also impacts</span><code>${escapeHtml(alsoImpacts || "n/a")}</code></div>
+              </div>
+              <pre><code>${escapeHtml(finding.evidence || "")}</code></pre>
+              <div class="copy-grid">
+                <div class="copy-block"><h4>Why it matters</h4><p>${escapeHtml(finding.why || "No explanation recorded.")}</p></div>
+                <div class="copy-block"><h4>Smallest useful fix</h4><p>${escapeHtml(finding.fix || "No fix guidance recorded.")}</p></div>
+              </div>
+            </div>
+          </details>
+        `;
+      }).join("");
+    }
+
+    function bindEvents() {
+      byId("search-input").addEventListener("input", (event) => {
+        state.query = event.target.value;
+        renderFindings();
+      });
+      byId("audit-select").addEventListener("change", (event) => {
+        state.audit = event.target.value;
+        renderFindings();
+      });
+      byId("status-select").addEventListener("change", (event) => {
+        state.status = event.target.value;
+        renderFindings();
+      });
+      byId("severity-select").addEventListener("change", (event) => {
+        state.severity = event.target.value;
+        renderFindings();
+      });
+      byId("expand-all").addEventListener("click", () => document.querySelectorAll(".finding").forEach((item) => { item.open = true; }));
+      byId("collapse-all").addEventListener("click", () => document.querySelectorAll(".finding").forEach((item) => { item.open = false; }));
+    }
+
+    function render() {
+      renderHero();
+      renderMetrics();
+      renderBrief();
+      renderAuditMatrix();
+      renderStatusBars();
+      renderRecommendations();
+      renderBlocked();
+      renderSnapshots();
+      renderFilters();
+      renderFindings();
+      bindEvents();
+    }
+
+    render();
+  </script>
+</body>
+</html>

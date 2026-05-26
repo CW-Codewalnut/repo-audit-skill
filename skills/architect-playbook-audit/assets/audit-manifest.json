@@ -1,0 +1,154 @@
+{
+  "name": "architect-playbook-audit",
+  "source": "ArchitectPlaybook-main",
+  "outputs": {
+    "directory": ".architect-playbook-audit",
+    "json": ".architect-playbook-audit/consolidated-findings.json",
+    "markdown": ".architect-playbook-audit/consolidated-findings.md",
+    "dashboard": "architect-playbook-dashboard.html"
+  },
+  "audits": [
+    {
+      "id": "quality-gates-audit",
+      "name": "Quality Gates",
+      "category": "Ship",
+      "appliesWhen": ["any repository"],
+      "source": "assets/subskills/quality-gates-audit/SKILL.md",
+      "defaultMode": "static"
+    },
+    {
+      "id": "bundle-build-audit",
+      "name": "Bundle and Build Health",
+      "category": "Ship",
+      "appliesWhen": ["Node manifest", "frontend build tooling", "explicit request"],
+      "source": "assets/subskills/bundle-build-audit/SKILL.md",
+      "defaultMode": "static",
+      "optionalFlags": ["--with-stats", "--stats-path"]
+    },
+    {
+      "id": "security-audit",
+      "name": "Security",
+      "category": "Risk",
+      "appliesWhen": ["frontend application", "Node manifest", "React", "explicit request"],
+      "source": "assets/subskills/security-audit/SKILL.md",
+      "defaultMode": "static",
+      "optionalFlags": ["--with-scan"]
+    },
+    {
+      "id": "dependency-audit",
+      "name": "Dependency Health",
+      "category": "Risk",
+      "appliesWhen": ["package.json", "lockfile", "explicit request"],
+      "source": "assets/subskills/dependency-audit/SKILL.md",
+      "defaultMode": "static",
+      "optionalFlags": ["--with-network"]
+    },
+    {
+      "id": "accessibility-audit",
+      "name": "Accessibility",
+      "category": "Experience",
+      "appliesWhen": ["React", "JSX", "TSX", "frontend shell", "explicit request"],
+      "source": "assets/subskills/accessibility-audit/SKILL.md",
+      "defaultMode": "static",
+      "optionalFlags": ["--severity"]
+    },
+    {
+      "id": "performance-audit",
+      "name": "Performance",
+      "category": "Experience",
+      "appliesWhen": ["React", "frontend application", "Lighthouse results", "explicit request"],
+      "source": "assets/subskills/performance-audit/SKILL.md",
+      "defaultMode": "static",
+      "optionalFlags": ["--with-lighthouse-results", "--lighthouse-results-path"]
+    },
+    {
+      "id": "error-handling-audit",
+      "name": "Error Handling",
+      "category": "Experience",
+      "appliesWhen": ["TypeScript", "React", "network code", "explicit request"],
+      "source": "assets/subskills/error-handling-audit/SKILL.md",
+      "defaultMode": "static"
+    },
+    {
+      "id": "architecture-audit",
+      "name": "Architecture",
+      "category": "Code",
+      "appliesWhen": ["Graphify output", "TypeScript architecture request", "explicit request"],
+      "source": "assets/subskills/architecture-audit/SKILL.md",
+      "defaultMode": "static",
+      "requires": ["graphify-out/graph.json"],
+      "optionalFlags": ["--pattern"]
+    },
+    {
+      "id": "testing-audit",
+      "name": "Testing",
+      "category": "Code",
+      "appliesWhen": ["React tests", "Testing Library", "Jest", "Vitest", "Playwright", "Cypress", "explicit request"],
+      "source": "assets/subskills/testing-audit/SKILL.md",
+      "defaultMode": "static",
+      "optionalFlags": ["--with-run"]
+    },
+    {
+      "id": "react-audit",
+      "name": "React",
+      "category": "Code",
+      "appliesWhen": ["React dependency", "JSX", "TSX", "hooks", "component files", "explicit request"],
+      "source": "assets/subskills/react-audit/SKILL.md",
+      "defaultMode": "static"
+    },
+    {
+      "id": "typescript-audit",
+      "name": "TypeScript",
+      "category": "Code",
+      "appliesWhen": ["tsconfig.json", ".ts files", ".tsx files", "explicit request"],
+      "source": "assets/subskills/typescript-audit/SKILL.md",
+      "defaultMode": "static",
+      "optionalFlags": ["--with-run"]
+    },
+    {
+      "id": "linting-audit",
+      "name": "Linting",
+      "category": "Code",
+      "appliesWhen": ["ESLint", "Biome", "TypeScript", "explicit request"],
+      "source": "assets/subskills/linting-audit/SKILL.md",
+      "defaultMode": "static",
+      "optionalFlags": ["--with-run"]
+    },
+    {
+      "id": "documentation-audit",
+      "name": "Documentation",
+      "category": "Knowledge",
+      "appliesWhen": ["any repository"],
+      "source": "assets/subskills/documentation-audit/SKILL.md",
+      "defaultMode": "static",
+      "optionalFlags": ["--with-link-check"]
+    },
+    {
+      "id": "agentic-audit",
+      "name": "Agentic Setup",
+      "category": "Knowledge",
+      "appliesWhen": ["CLAUDE.md", "AGENTS.md", ".cursor/rules", ".cursorrules", ".github/copilot-instructions.md", ".claude/settings.json", "explicit request"],
+      "source": "assets/subskills/agentic-audit/SKILL.md",
+      "defaultMode": "static"
+    }
+  ],
+  "utilities": [
+    {
+      "id": "pre-audit-setup",
+      "name": "Pre-Audit Setup",
+      "source": "assets/subskills/pre-audit-setup/SKILL.md",
+      "useInConsolidatedAudit": "Read for graph expectations only; do not mutate settings."
+    },
+    {
+      "id": "preflight",
+      "name": "Preflight",
+      "source": "assets/subskills/preflight/SKILL.md",
+      "useInConsolidatedAudit": "Read for optional enrichment tool detection only; do not install or scaffold."
+    }
+  ],
+  "excludedFromConsolidatedRun": [
+    "install-architect-playbook-locally",
+    "install-architect-playbook-globally",
+    "system-self-improve"
+  ]
+}
